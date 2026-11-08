@@ -73,16 +73,18 @@
     }
   }
   async function api(path,options={}){
-    const response=await fetch(path,{...options,headers:{'Content-Type':'application/json',...options.headers},cache:'no-store'});
+    const response=await fetch(path,{...options,cache:'no-store',credentials:'omit'});
     const data=await response.json().catch(()=>({error:'通信に失敗しました。'}));if(!response.ok)throw new Error(data.error||'通信に失敗しました。');return data;
   }
   async function load(){
-    try{const data=await api(new URL('events.json',document.baseURI).href);if(!Array.isArray(data.events)||data.events.some(e=>!e||typeof e.date!=='string'||typeof e.title!=='string'))throw Error('Invalid events data');events=data.events;loading=false;render();$('calendar-message').textContent='開催予定はすべてのお客様に共有されます。';}
+    try{const data=await api('https://mellowcherie-pastel.folksyinlet.chatgpt.site/api/events');if(!Array.isArray(data.events)||data.events.some(e=>!e||typeof e.date!=='string'||typeof e.title!=='string'))throw Error('Invalid events data');events=data.events;loading=false;render();$('calendar-message').textContent='開催予定はすべてのお客様に共有されます。';}
     catch(error){loading=false;render();$('calendar-message').textContent='予定を取得できませんでした。再読み込みしてお試しください。';}
   }
   $('calendar-prev').addEventListener('click',()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);selected=dateKey(month);render();});
   $('calendar-next').addEventListener('click',()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);selected=dateKey(month);render();});
   $('calendar-today').addEventListener('click',()=>{selected=today;month=new Date(today+'T12:00:00');month.setDate(1);render();});
   window.addEventListener('focus',load);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+  setInterval(()=>{if(!document.hidden)load();},30000);
   render();load();
 })();

@@ -2,45 +2,27 @@
 
 公開サイト: https://cubemap511-hue.github.io/Sherry/
 
-GitHub Pagesの静的サイトです。HTML・CSS・JavaScript・画像・カレンダーの予定データを、このリポジトリだけで管理します。外部のAPIやデータベースは使用しません。
+公開サイトはこのGitHubリポジトリからGitHub Pagesへ公開します。予定を登録する管理フォームとデータ保存だけSitesを使います。
 
-## カレンダーの更新
+## 予定の追加・編集・削除
 
-[予定データを編集](https://github.com/cubemap511-hue/Sherry/edit/main/events.json)して、`main` に保存します。GitHub Pagesの公開処理完了後、カレンダーへ反映されます。
+管理フォーム: https://mellowcherie-pastel.folksyinlet.chatgpt.site/admin
 
-```json
-{
-  "events": [
-    {
-      "id": "event-001",
-      "date": "2026-12-01",
-      "title": "イベント名",
-      "time": "14:00",
-      "details": "イベントのご案内"
-    }
-  ]
-}
-```
+共通パスワードでログインし、開催日・イベント名・時間・詳細を入力して保存します。GitHubアカウントは不要です。管理フォームはパスワードを共有したメンバー向けです。
 
-- `id`: 予定ごとに重複しない文字列
-- `date`: 開催日（`YYYY-MM-DD`）
-- `title`: イベント名
-- `time`: 開始時間（`HH:mm`）。未定は空文字 `""`
-- `details`: ご案内。改行は `\n`、未記入は空文字 `""`
+保存した予定は公開カレンダーの再読み込み・画面復帰時に反映されます。開いたままのカレンダーも30秒ごとに更新します。予定データはすべての訪問者に公開されます。
 
-このサンプルは実際の予定ではありません。予定がない場合は `{"events": []}` にします。
+以前の更新案内URL https://cubemap511-hue.github.io/Sherry/admin/ からも管理フォームへ移動できます。公開サイト内には管理用リンクを表示しません。
 
-更新案内ページ: https://cubemap511-hue.github.io/Sherry/admin/
+## ファイル
 
-以前の共通パスワードによるサーバー保存は廃止し、GitHubのリポジトリ編集権限で管理する構成に戻しています。[GitHub Pagesは静的サイト用のサービス](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)です。
+- index.html: 本文・ロゴ・最初の本の演出
+- logo.png: ブランドロゴ
+- calendar.css: カレンダー、クリック演出、背景バブル
+- calendar.js: カレンダーと演出。Sitesの公開APIから予定を取得
+- admin/index.html: 管理フォームへの案内・移動
+- events.json: 以前の静的運用時のバックアップ。現在の表示・更新には使いません
 
-## サイトのファイル
+Sites側は公開予定の読み取りAPIとパスワード認証付き管理フォームを提供します。GitHubの公開元からは予定の読み取りだけを許可し、変更は管理フォーム内で認証した場合に限ります。
 
-- `index.html`: 本文・ロゴの表示・最初の本の演出
-- `logo.png`: ブランドロゴ
-- `calendar.css`: カレンダー、クリック演出、背景バブルの見た目
-- `calendar.js`: カレンダー表示、ランダムなハートとリボン、背景バブル
-- `events.json`: 全訪問者に公開する予定
-- `admin/index.html`: GitHubから予定を更新する方法の案内
-
-パスワード・APIキー・セッション用の秘密情報を、この公開リポジトリに保存しないでください。
+パスワード・APIキー・セッション用の秘密情報は、この公開リポジトリに保存しません。
