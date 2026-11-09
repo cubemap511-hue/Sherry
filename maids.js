@@ -2,7 +2,7 @@
   const grid=document.getElementById('maid-grid'),note=document.querySelector('.maid-footnote'),modal=document.getElementById('maid-profile');
   let current=null,last='',loading=false;
   function open(profile){current=profile.id;MellowProfiles.details(profile,modal.querySelector('.maid-detail'));if(!modal.open)modal.showModal();}
-  modal.addEventListener('close',()=>{current=null;});
+  modal.addEventListener('close',()=>{current=null;MellowProfiles.closePhotos?.();});
   async function load(){
     if(loading)return;loading=true;
     try{
@@ -10,6 +10,7 @@
       if(!response.ok)throw Error();const data=await response.json();if(!Array.isArray(data.maids))throw Error();
       const signature=JSON.stringify(data.maids);
       if(signature!==last){
+        MellowProfiles.closePhotos?.();
         const focused=document.activeElement.closest?.('.maid-card')?.dataset.id;
         const cards=data.maids.map(p=>{const card=MellowProfiles.card(p,open);card.dataset.id=p.id;return card;});grid.replaceChildren(...cards);last=signature;
         if(focused)cards.find(card=>card.dataset.id===focused)?.focus({preventScroll:true});
