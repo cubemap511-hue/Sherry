@@ -1,5 +1,5 @@
 (() => {
-  // Decorative bubbles stay behind content and never capture input.
+  // Bubbles stay behind content; circle hit-testing below adds popping.
   const bubbleColors=['233 155 207','185 160 235','158 216 238'];
   const bubbleSections=[...document.querySelectorAll('main > section')];
   for(const section of bubbleSections){
@@ -16,6 +16,49 @@
   const resizeBubbles=()=>bubbleSections.forEach(section=>section.style.setProperty('--bubble-travel',(section.offsetHeight+440)+'px'));
   resizeBubbles();
   if(typeof ResizeObserver!=='undefined'){const bubbleResizeObserver=new ResizeObserver(resizeBubbles);bubbleSections.forEach(section=>bubbleResizeObserver.observe(section));}else window.addEventListener('resize',resizeBubbles);
+
+  // Hit-test the floating circles without covering links or calendar controls.
+  document.addEventListener('click', event => {
+    if (!event.detail || event.target.closest('a,button,input,textarea,select,dialog') || document.body.classList.contains('intro-active')) return;
+    const section=event.target.closest('main > section');
+    if (!section) return;
+    const layer=section.querySelector('.pastel-bubbles');
+    if (!layer) return;
+    const clip=layer.getBoundingClientRect();
+    if(event.clientX<clip.left || event.clientX>clip.right || event.clientY<clip.top || event.clientY>clip.bottom) return;
+    const bubbles=[...layer.children].reverse();
+    for(const bubble of bubbles){
+      const style=getComputedStyle(bubble), rect=bubble.getBoundingClientRect();
+      if(style.visibility==='hidden' || Number(style.opacity)<.1 || !rect.width || !rect.height) continue;
+      const x=rect.left+rect.width/2, y=rect.top+rect.height/2;
+      if(((event.clientX-x)/(rect.width/2))**2+((event.clientY-y)/(rect.height/2))**2>1) continue;
+      bubble.style.visibility='hidden';
+      if(Element.prototype.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        const color=bubble.style.getPropertyValue('--bubble-color');
+        for(let i=0;i<9;i++){
+          const ring=i===0, dot=document.createElement('span');
+          dot.setAttribute('aria-hidden','true');
+          dot.style.cssText='position:fixed;pointer-events:none;z-index:999;border-radius:50%;box-sizing:border-box;';
+          Object.assign(dot.style,{left:x+'px',top:y+'px',width:(ring?rect.width:6)+'px',height:(ring?rect.height:6)+'px',border:'2px solid rgb('+color+' / .8)',background:ring?'transparent':'rgb('+color+' / .65)'});
+          document.body.append(dot);
+          const angle=(i-1)*Math.PI/4, distance=rect.width*.65;
+          const animation=dot.animate([
+            {transform:'translate(-50%,-50%) scale(1)',opacity:.85},
+            {transform:ring?'translate(-50%,-50%) scale(1.3)':`translate(calc(-50% + ${Math.cos(angle)*distance}px),calc(-50% + ${Math.sin(angle)*distance}px)) scale(.2)`,opacity:0}
+          ],{duration:ring?280:480,easing:'ease-out'});
+          animation.onfinish=()=>dot.remove();animation.oncancel=()=>dot.remove();
+        }
+      }
+      setTimeout(()=>{
+        // Return this bubble to the bottom to keep the background populated.
+        const replacement=bubble.cloneNode(false);
+        replacement.style.removeProperty('visibility');
+        replacement.style.setProperty('--bubble-delay','0s');
+        bubble.replaceWith(replacement);
+      },600);
+      break;
+    }
+  });
 
   const shapes = [
     '<path d="M16 28S2 20 2 10C2 1 12 0 16 7C20 0 30 1 30 10C30 20 16 28 16 28Z"/>',
