@@ -7,3 +7,9 @@ header nav{flex-wrap:wrap;justify-content:flex-end}
 .social-feed>a{display:block;padding:24px 0;text-align:center;font-size:13px;overflow-wrap:anywhere}
 .social-note{text-align:center;font-size:12px;line-height:2;color:#786587;margin:18px auto 0;max-width:620px}
 @media(max-width:650px){header{gap:12px}header nav{gap:10px 12px}.social-section{padding:0 16px 50px}.social-feed{padding:10px}.social-link{font-size:12px;padding:12px 18px}}
+
+/* A shared background and bubble layer continue across section boundaries. */
+main{position:relative;isolation:isolate;background:linear-gradient(180deg,#f2fcff 0%,#fff1fa 18%,#f2fcff 38%,#f8eaff 58%,#fff1fa 78%,#f6e4fb 100%)}
+main>section{position:relative;z-index:1;background:transparent!important}
+main>.pastel-bubbles{position:fixed;inset:0;z-index:0;border-radius:0;pointer-events:none}
+
