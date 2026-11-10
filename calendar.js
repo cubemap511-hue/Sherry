@@ -92,6 +92,26 @@
   const today=dateKey(new Date());
   let month=new Date(new Date().getFullYear(),new Date().getMonth(),1), selected=today, events=[], loading=true;
   const dateLabel=key=>new Date(key+'T12:00:00').toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  const eventDialog=document.createElement('dialog');
+  eventDialog.id='calendar-event-dialog';
+  eventDialog.className='calendar-dialog calendar-event-dialog';
+  eventDialog.setAttribute('aria-labelledby','calendar-selected');
+  const closeEvents=document.createElement('button');
+  closeEvents.type='button';closeEvents.className='close';closeEvents.textContent='×';
+  closeEvents.setAttribute('aria-label','予定を閉じる');closeEvents.autofocus=true;
+  const details=$('calendar-events').closest('.calendar-details');
+  eventDialog.append(closeEvents,details);document.body.append(eventDialog);
+  closeEvents.addEventListener('click',()=>eventDialog.close());
+  let backdropPressed=false;
+  const outsideDialog=event=>{
+    const rect=eventDialog.getBoundingClientRect();
+    return event.target===eventDialog&&(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom);
+  };
+  eventDialog.addEventListener('pointerdown',event=>{backdropPressed=outsideDialog(event);});
+  eventDialog.addEventListener('click',event=>{if(backdropPressed&&outsideDialog(event))eventDialog.close();backdropPressed=false;});
+  eventDialog.addEventListener('close',()=>{
+    document.querySelector('#calendar-days button[aria-pressed="true"]')?.focus({preventScroll:true});
+  });
   function render() {
     $('calendar-month').textContent=month.toLocaleDateString('ja-JP',{year:'numeric',month:'long'});
     const grid=$('calendar-days'); grid.replaceChildren();
@@ -103,7 +123,8 @@
       button.setAttribute('aria-label',dateLabel(key)+(dayEvents.length?`、${dayEvents.length}件の予定`:''));if(key===today)button.setAttribute('aria-current','date');
       const number=document.createElement('span');number.textContent=d;button.append(number);
       if(dayEvents.length){const badge=document.createElement('small');badge.textContent='♡ '+dayEvents.length+'件';button.append(badge);}
-      button.addEventListener('click',()=>{selected=key;render();});grid.append(button);
+      if(dayEvents.length){button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls',eventDialog.id);}
+      button.addEventListener('click',()=>{selected=key;render();if(dayEvents.length)eventDialog.showModal();});grid.append(button);
     }
     $('calendar-selected').textContent=dateLabel(selected)+'の予定';
     const list=$('calendar-events');list.replaceChildren();
@@ -131,3 +152,4 @@
   setInterval(()=>{if(!document.hidden)load();},30000);
   render();load();
 })();
+
