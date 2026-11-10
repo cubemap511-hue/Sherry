@@ -1,29 +1,24 @@
 (() => {
   // Bubbles stay behind content; circle hit-testing below adds popping.
   const bubbleColors=['233 155 207','185 160 235','158 216 238'];
-  const bubbleSections=[...document.querySelectorAll('main > section')];
-  for(const section of bubbleSections){
-    section.classList.add('bubble-section');
-    const layer=document.createElement('div');layer.className='pastel-bubbles';layer.setAttribute('aria-hidden','true');
-    for(let i=0;i<10;i++){
+  const bubbleMain=document.querySelector('main');
+  const layer=document.createElement('div');layer.className='pastel-bubbles';layer.setAttribute('aria-hidden','true');
+    for(let i=0;i<16;i++){
       const bubble=document.createElement('span');bubble.className='pastel-bubble';
       const duration=25+Math.random()*19;
-      for(const [key,value] of Object.entries({'--bubble-left':(i*10+Math.random()*7-3)+'%','--bubble-size':(85+Math.random()*115)+'px','--bubble-duration':duration+'s','--bubble-delay':(-Math.random()*duration)+'s','--bubble-drift':(Math.random()*100-50)+'px','--bubble-color':bubbleColors[i%3]}))bubble.style.setProperty(key,value);
+      for(const [key,value] of Object.entries({'--bubble-left':(i*6.25+Math.random()*6-3)+'%','--bubble-size':(85+Math.random()*115)+'px','--bubble-duration':duration+'s','--bubble-delay':(-Math.random()*duration)+'s','--bubble-drift':(Math.random()*100-50)+'px','--bubble-color':bubbleColors[i%3]}))bubble.style.setProperty(key,value);
       layer.append(bubble);
     }
-    section.prepend(layer);
-  }
-  const resizeBubbles=()=>bubbleSections.forEach(section=>section.style.setProperty('--bubble-travel',(section.offsetHeight+440)+'px'));
+  bubbleMain.prepend(layer);
+  const resizeBubbles=()=>layer.style.setProperty('--bubble-travel',(window.innerHeight+440)+'px');
   resizeBubbles();
-  if(typeof ResizeObserver!=='undefined'){const bubbleResizeObserver=new ResizeObserver(resizeBubbles);bubbleSections.forEach(section=>bubbleResizeObserver.observe(section));}else window.addEventListener('resize',resizeBubbles);
+  window.addEventListener('resize',resizeBubbles);
 
   // Hit-test the floating circles without covering links or calendar controls.
   document.addEventListener('click', event => {
     if (!event.detail || event.target.closest('a,button,input,textarea,select,dialog') || document.body.classList.contains('intro-active')) return;
     const section=event.target.closest('main > section');
     if (!section) return;
-    const layer=section.querySelector('.pastel-bubbles');
-    if (!layer) return;
     const clip=layer.getBoundingClientRect();
     if(event.clientX<clip.left || event.clientX>clip.right || event.clientY<clip.top || event.clientY>clip.bottom) return;
     const bubbles=[...layer.children].reverse();
