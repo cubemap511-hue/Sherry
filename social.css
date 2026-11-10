@@ -1,5 +1,5 @@
 header nav{flex-wrap:wrap;justify-content:flex-end}
-.social-section{padding:0 24px 75px;background:linear-gradient(#f2fcff,#f8eaff)}
+.social-section{padding:0 24px 75px;background:linear-gradient(#fff1fa,#f8eaff)}
 .social-section .chapter{padding-left:0;padding-right:0;padding-bottom:30px}
 .social-link{display:inline-flex;align-items:center;justify-content:center;gap:12px;max-width:100%;margin-top:15px;padding:14px 24px;border:1.5px solid #b39bdc;border-radius:32px;background:#ffffffb3;text-decoration:none;font-size:13px;line-height:1.8}
 .social-link:hover{background:#fff}
